@@ -1,0 +1,16 @@
+%% Ubah nama file config ini dari "db.config.example" -> "db.config"
+%% lalu isi parameter berikut sesuai environment yang ada
+
+[ {poster, [
+        { pgo_config,
+          #{ pool_size => 10,
+             host => "localhost",
+             port => 5432,
+             user => "user",
+             password => "password",
+             database => "database"
+          }
+         }
+    ]
+   }
+].
