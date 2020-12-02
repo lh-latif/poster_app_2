@@ -4,7 +4,7 @@
 
 pgo_config() ->
     {ok, Config} =
-        application:get_ent(poster, pgo_config),
+        application:get_env(poster, pgo_config),
     Config.
 
 start_link() ->
