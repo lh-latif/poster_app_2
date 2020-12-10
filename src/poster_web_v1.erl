@@ -8,11 +8,23 @@ init(Req,State) ->
         {<<"GET">>,<<"/user/token">>} ->
             get_user_token(Req,State);
         {<<"GET">>,<<"/posts">>} ->
-            list_posts(Req,State);
+            poster_post:list_posts(Req,State);
+        {<<"POST">>,<<"/posts">>} ->
+            check_header_json(Req,
+                {poster_post,save_post_handler,[Req]}
+            );
         _ ->
             not_found(Req,State)
     end.
 
+check_header_json(Req,MFA) ->
+    case cowboy_req:header(<<"content-type">>, Req) of
+        <<"application/json">> ->
+            {M,F,A} = MFA,
+            erlang:apply(M,F,A);
+        _ ->
+            not_found(Req, [])
+    end.
 
 get_user_token(Req,State) ->
     { ok,
@@ -24,28 +36,6 @@ get_user_token(Req,State) ->
       ),
       State
     }.
-
-list_posts(Req,State) ->
-    #{rows := Posts} = poster_post:list_post(),
-    % io:format("~p~n", [Posts]),
-    { ok,
-      cowboy_req:reply(
-        200,
-        #{"Content-Type" => "application/json"},
-        jsone:encode(lists:map(fun map_post/1, Posts)),
-        Req
-      ),
-      State
-    }.
-
-map_post({Id, Title, Content, UserId, InsertedAt, UpdatedAt}) ->
-    [ {<<"id">>, Id},
-      {<<"title">>, Title},
-      {<<"content">>, Content},
-      {<<"user_id">>, UserId},
-      {<<"inserted_at">>, InsertedAt},
-      {<<"updated_at">>, UpdatedAt}
-    ].
 
 
 not_found(Req,State) ->
